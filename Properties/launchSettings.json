@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ListHiddenFiles": {
+      "commandName": "Project",
+      "commandLineArgs": "S:\\cloud S:\\virtual"
+    }
+  }
+}
