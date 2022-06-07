@@ -66,6 +66,28 @@ class MyFileInfoComparer : IComparer<MyFileInfo>
 	}
 }
 
+class MyGrouping<TKey, TElement> : IGrouping<TKey, TElement>
+{
+	public TKey Key { get; set; }
+	private List<TElement> elements;
+
+	public MyGrouping(TKey key, List<TElement> elements)
+	{
+		Key = key;
+		this.elements = elements;
+	}
+
+	public IEnumerator<TElement> GetEnumerator()
+	{
+		return elements.GetEnumerator();
+	}
+
+	System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+	{
+		return GetEnumerator();
+	}
+}
+
 class Program
 {
 	//static FileAttributes attrDir = FileAttributes.Directory;
@@ -193,12 +215,47 @@ class Program
 			.MyGroupBy(item => item.Size)
 			.Where(group => group.Count > 1)
 			.Select(group =>
-				group.GroupBy(GetHash)
+				group.GroupBy(GetHash).Select(group => { return InteractiveDeletition(group); })
 				.Where(g => g.ToList().Count > 1)
 				.SelectMany(x => x)
 			)
 			.SelectMany(x => x);
-		File.WriteAllLines("equalSizedFiles.csv", filtered.Select(ToLine));
+		File.WriteAllLines("sameFiles.csv", filtered.Select(ToLine));
+	}
+
+	private static IGrouping<int, MyFileInfo> InteractiveDeletition(IGrouping<int, MyFileInfo> group)
+	{
+		var notDeletedElements = new List<MyFileInfo>();
+		foreach (var folder in group.GroupBy(file => new FileInfo(file.Path).DirectoryName))
+		{
+			var folderList = new List<MyFileInfo>(folder.OrderBy(info => info.Path.Length));
+			if (folderList.Count > 1)
+			{
+				Console.WriteLine("Which of these do you want to keep?");
+				for (int i = 0; i < folderList.Count; i++)
+				{
+					Console.WriteLine($"{i+1}. {folderList[i].Path}");
+				}
+				if (int.TryParse(Console.ReadLine(), out int index) && index >= 1 && index <= folderList.Count)
+				{
+					index--;
+					for (int i = 0; i < folderList.Count; i++)
+					{
+						if (i == index)
+						{ 
+							notDeletedElements.Add(folderList[i]);
+						}
+						else
+						{
+							File.Delete(folderList[i].Path);
+						}
+					}
+				}
+				else
+					Console.WriteLine("Wrong input");
+			}
+		}
+		return new MyGrouping<int, MyFileInfo>(group.Key, notDeletedElements);
 	}
 
 	static int GetHash(MyFileInfo info)
