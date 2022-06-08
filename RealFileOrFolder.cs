@@ -8,7 +8,7 @@ namespace ListHiddenFiles
 {
 	internal class RealFileOrFolder : IFileOrFolder
 	{
-		readonly FileSystemInfo info;
+		protected readonly FileSystemInfo info;
 		public RealFileOrFolder(FileSystemInfo info)
 		{ 
 			this.info = info;

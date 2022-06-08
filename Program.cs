@@ -19,10 +19,9 @@ namespace ListHiddenFiles
 			e.MoveNext();
 			while (e.Current != null)
 			{
-				var group = new List<T>();
-				group.Add(e.Current);
+				var group = new List<T>() { e.Current };
 				Key key = getKey(e.Current);
-				while (e.MoveNext() && e.Current != null && getKey(e.Current).Equals(key))
+				while (e.MoveNext() && e.Current != null && getKey(e.Current)!.Equals(key))
 					group.Add(e.Current);
 				yield return group;
 			}
@@ -71,7 +70,7 @@ namespace ListHiddenFiles
 	class MyGrouping<TKey, TElement> : IGrouping<TKey, TElement>
 	{
 		public TKey Key { get; set; }
-		private List<TElement> elements;
+		private readonly List<TElement> elements;
 
 		public MyGrouping(TKey key, List<TElement> elements)
 		{
@@ -162,18 +161,18 @@ namespace ListHiddenFiles
 		/// <returns>The CSV cell formatted string</returns>
 		public static string StringToCSVCell(string str)
 		{
-			bool mustQuote = (str.Contains(",") || str.Contains("\"") || str.Contains("\r") || str.Contains("\n"));
+			bool mustQuote = (str.Contains(',') || str.Contains('\"') || str.Contains('\r') || str.Contains('\n'));
 			if (mustQuote)
 			{
-				StringBuilder sb = new StringBuilder();
-				sb.Append("\"");
+				var sb = new StringBuilder();
+				sb.Append('\"');
 				foreach (char nextChar in str)
 				{
 					sb.Append(nextChar);
 					if (nextChar == '"')
-						sb.Append("\"");
+						sb.Append('\"');
 				}
-				sb.Append("\"");
+				sb.Append('\"');
 				return sb.ToString();
 			}
 
@@ -193,7 +192,6 @@ namespace ListHiddenFiles
 
 		static void Main(string[] args)
 		{
-			string path;
 			if (args.Length == 0)
 			{
 				Console.WriteLine("Usage: ListHiddenFiles folder [more folders]");
@@ -206,11 +204,11 @@ namespace ListHiddenFiles
 				Console.WriteLine(" - files with name starting with .");
 				Console.WriteLine(" - long paths");
 			}
-			List<MyFileInfo> fileInfos = new List<MyFileInfo>();
+			var fileInfos = new List<MyFileInfo>();
 			foreach (var arg in args)
 			{
-				DirectoryInfo dir = new DirectoryInfo(arg);
-				listPath(dir, 0, fileInfos);
+				var dir = new DirectoryInfo(arg);
+				RecursePath(new RealFolder(dir), 0, fileInfos);
 			}
 			fileInfos.Sort(new MyFileInfoComparer());
 			var filtered = fileInfos
@@ -273,19 +271,19 @@ namespace ListHiddenFiles
 			return hash;
 		}
 
-		static void listPath(DirectoryInfo dir, int depth, List<MyFileInfo> fileInfos)
+		static void RecursePath(IFolder dir, int depth, List<MyFileInfo> fileInfos)
 		{
-			DirectoryInfo[] directories = dir.GetDirectories();
-			foreach (DirectoryInfo subDirectory in directories)
+			var directories = dir.GetDirectories();
+			foreach (var subDirectory in directories)
 			{
-				if (!PrintIfProblematic(new RealFileOrFolder(subDirectory), depth))
-					listPath(subDirectory, depth + 1, fileInfos);
+				if (!PrintIfProblematic(subDirectory, depth))
+					RecursePath(subDirectory, depth + 1, fileInfos);
 			}
-			FileInfo[] files = dir.GetFiles();
-			foreach (FileInfo file in files)
+			var files = dir.GetFiles();
+			foreach (var file in files)
 			{
-				fileInfos.Add(new(file.Length, file.FullName));
-				PrintIfProblematic(new RealFileOrFolder(file), depth);
+				fileInfos.Add(new(file.Size, file.FullName));
+				PrintIfProblematic(file, depth);
 			}
 		}
 	}

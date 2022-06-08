@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace ListHiddenFiles
 {
-	internal interface IFile : IFileOrFolder
+	internal class RealFile : RealFileOrFolder, IFile
 	{
-		long Size { get; }
+		public RealFile(FileInfo info) : base(info)
+		{
+		}
+		public long Size => ((FileInfo)info).Length;
 	}
 }

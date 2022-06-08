@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ListHiddenFiles
 {
-	internal interface IFolder
+	internal interface IFolder : IFileOrFolder
 	{
-		IEnumerable<IFolder> ListSubfolders();
-		IEnumerable<IFile> ListFiles();
+		IEnumerable<IFolder> GetDirectories();
+		IEnumerable<IFile> GetFiles();
 	}
 }

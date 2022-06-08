@@ -8,12 +8,18 @@ namespace ListHiddenFiles
 {
 	internal class FakeFolder : IFolder
 	{
-		public IEnumerable<IFile> ListFiles()
+		public string Name => throw new NotImplementedException();
+
+		public FileAttributes Attributes => throw new NotImplementedException();
+
+		public string FullName => throw new NotImplementedException();
+
+		public IEnumerable<IFile> GetFiles()
 		{
 			throw new NotImplementedException();
 		}
 
-		public IEnumerable<IFolder> ListSubfolders()
+		public IEnumerable<IFolder> GetDirectories()
 		{
 			throw new NotImplementedException();
 		}
