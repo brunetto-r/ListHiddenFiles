@@ -102,7 +102,7 @@ namespace ListHiddenFiles
 		/// <param name="info"></param>
 		/// <param name="depth"></param>
 		/// <returns></returns>
-		static bool PrintIfProblematic(FileSystemInfo info, int depth)
+		static bool PrintIfProblematic(IFileOrFolder info, int depth)
 		{
 			if (info.Name == "$RECYCLE.BIN")
 				return true;
@@ -278,14 +278,14 @@ namespace ListHiddenFiles
 			DirectoryInfo[] directories = dir.GetDirectories();
 			foreach (DirectoryInfo subDirectory in directories)
 			{
-				if (!PrintIfProblematic(subDirectory, depth))
+				if (!PrintIfProblematic(new RealFileOrFolder(subDirectory), depth))
 					listPath(subDirectory, depth + 1, fileInfos);
 			}
 			FileInfo[] files = dir.GetFiles();
 			foreach (FileInfo file in files)
 			{
 				fileInfos.Add(new(file.Length, file.FullName));
-				PrintIfProblematic(file, depth);
+				PrintIfProblematic(new RealFileOrFolder(file), depth);
 			}
 		}
 	}
