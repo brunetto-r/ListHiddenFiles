@@ -217,9 +217,9 @@ namespace ListHiddenFiles
 				.Select(group =>
 					group.GroupBy(GetHash).Select(group => { return InteractiveDeletition(group); })
 					.Where(g => g.ToList().Count > 1)
-					.SelectMany(x => x)
 				)
-				.SelectMany(x => x);
+				.SelectMany(x => x) // toto zapomene rozdeleni dle velikosti a mame skupinky dle stejneho hashe (a velikosti)
+				.SelectMany(x => x); // toto zapomene na skupinky dle hashu a mame seznam souboru
 			File.WriteAllLines("sameFiles.csv", filtered.Select(ToLine));
 		}
 
