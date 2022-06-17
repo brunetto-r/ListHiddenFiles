@@ -254,6 +254,8 @@ namespace ListHiddenFiles
 					else
 						Console.WriteLine("Wrong input");
 				}
+				else
+					notDeletedElements.Add(folderList[0]);
 			}
 			return new MyGrouping<int, MyFileInfo>(group.Key, notDeletedElements);
 		}
